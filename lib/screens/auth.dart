@@ -26,6 +26,10 @@ class _AuthScreenState extends State<AuthScreen> {
   File? _selectedImage;
   bool _isAuthenticating = false;
 
+  void _resetForm() {
+    _form.currentState!.reset();
+  }
+
   void _submit() async {
     final isValid = _form.currentState!.validate();
 
@@ -56,7 +60,6 @@ class _AuthScreenState extends State<AuthScreen> {
           password: _enteredPassword,
         );
 
-        // Add user details to the database if they don't exist
         final user = _firebase.currentUser;
         final userSnapshot = await FirebaseFirestore.instance
             .collection('users')
@@ -82,7 +85,6 @@ class _AuthScreenState extends State<AuthScreen> {
           });
         }
       } else {
-        // Registration flow
         final userCredentials = await _firebase.createUserWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
@@ -122,6 +124,10 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   String? validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Email address is required';
+    }
+
     const pattern = r"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'"
         r'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-'
         r'\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*'
@@ -129,11 +135,10 @@ class _AuthScreenState extends State<AuthScreen> {
         r'[0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9]'
         r'[0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\'
         r'x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])';
+
     final regex = RegExp(pattern);
 
-    return value!.isNotEmpty && !regex.hasMatch(value)
-        ? 'Enter a valid email address'
-        : null;
+    return !regex.hasMatch(value) ? 'Enter a valid email address' : null;
   }
 
   @override
@@ -232,6 +237,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               onPressed: () {
                                 setState(() {
                                   _isLogin = !_isLogin;
+                                  _resetForm();
                                 });
                               },
                               child: Text(
