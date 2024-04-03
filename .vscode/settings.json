@@ -4,6 +4,7 @@
         "ARGB",
         "autocorrect",
         "Cupertino",
+        "dotenv",
         "Firestore",
         "LTRB",
         "multilined",
